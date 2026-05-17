@@ -54,7 +54,7 @@ common:
     url: https://knowledge.gatekeeperhq.com
   - type: Pricing
     url: https://www.gatekeeperhq.com/pricing
-  - type: Sign Up
+  - type: SignUp
     url: https://www.gatekeeperhq.com/demo
   - type: Support
     url: https://knowledge.gatekeeperhq.com
