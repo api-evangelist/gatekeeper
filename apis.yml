@@ -48,6 +48,8 @@ apis:
         url: https://knowledge.gatekeeperhq.com
 
 common:
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/gatekeeper-vclm
   - type: Website
     url: https://www.gatekeeperhq.com
   - type: Documentation
