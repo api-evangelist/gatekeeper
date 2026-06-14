@@ -1,0 +1,892 @@
+"""
+Gatekeeper GraphQL Schema
+Contract Lifecycle Management and Vendor Management Platform
+https://knowledge.gatekeeperhq.com/en/docs/configuring-api
+"""
+
+scalar DateTime
+scalar JSON
+
+# ─── Contracts ───────────────────────────────────────────────────────────────
+
+"""A contract record in the Gatekeeper CLM platform."""
+type Contract {
+  id: ID!
+  name: String!
+  description: String
+  status: ContractStatus!
+  type: ContractType
+  value: ContractValue
+  terms: ContractTerms
+  owner: ContractOwner
+  parties: [ContractParty!]
+  category: ContractCategory
+  documents: [Document!]
+  attachments: [Attachment!]
+  milestones: [Milestone!]
+  reminders: [Reminder!]
+  expiration: Expiration
+  renewal: Renewal
+  reviews: [Review!]
+  approvals: [Approval!]
+  tags: [Tag!]
+  customFields: [FieldValue!]
+  supplier: Supplier
+  vendor: Vendor
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User
+}
+
+"""Detailed metadata for a contract record."""
+type ContractDetails {
+  id: ID!
+  contract: Contract!
+  internalReference: String
+  externalReference: String
+  executionDate: DateTime
+  effectiveDate: DateTime
+  governingLaw: String
+  jurisdiction: String
+  notes: String
+  riskScore: Float
+  complianceStatus: String
+  signatureStatus: String
+  eSignatureProvider: String
+  linkedContracts: [Contract!]
+}
+
+"""Classification type for a contract."""
+type ContractType {
+  id: ID!
+  name: String!
+  description: String
+  template: String
+  isDefault: Boolean
+  createdAt: DateTime!
+}
+
+"""Lifecycle status of a contract."""
+type ContractStatus {
+  id: ID!
+  name: String!
+  label: String!
+  color: String
+  isActive: Boolean!
+  isFinal: Boolean
+  sortOrder: Int
+}
+
+"""Financial value associated with a contract."""
+type ContractValue {
+  id: ID!
+  totalValue: Float
+  annualValue: Float
+  currency: String!
+  paymentTerms: String
+  billingCycle: String
+  variableValue: Boolean
+  valueNotes: String
+}
+
+"""Terms and conditions details for a contract."""
+type ContractTerms {
+  id: ID!
+  startDate: DateTime
+  endDate: DateTime
+  durationMonths: Int
+  autoRenew: Boolean
+  noticePeriodDays: Int
+  terminationClause: String
+  liabilityLimit: Float
+  currency: String
+  slaDetails: String
+}
+
+"""A party (person or organisation) named in a contract."""
+type ContractParty {
+  id: ID!
+  contract: Contract!
+  details: PartyDetails!
+  role: PartyRole!
+  signatory: Boolean
+  signedAt: DateTime
+  signatureMethod: String
+}
+
+"""Contact and identity details for a contract party."""
+type PartyDetails {
+  id: ID!
+  name: String!
+  email: String
+  phone: String
+  address: String
+  companyName: String
+  companyRegistration: String
+  vatNumber: String
+  country: String
+}
+
+"""The role a party plays within a contract."""
+type PartyRole {
+  id: ID!
+  name: String!
+  description: String
+  isInternal: Boolean
+}
+
+"""The Gatekeeper user who owns a contract."""
+type ContractOwner {
+  id: ID!
+  user: User!
+  assignedAt: DateTime!
+  isPrimary: Boolean
+}
+
+"""Category assignment for a contract."""
+type ContractCategory {
+  id: ID!
+  contract: Contract!
+  category: Category!
+  isPrimary: Boolean
+}
+
+# ─── Categories ──────────────────────────────────────────────────────────────
+
+"""A business category used to classify contracts and vendors."""
+type Category {
+  id: ID!
+  name: String!
+  details: CategoryDetails
+  parent: Category
+  children: [Category!]
+  contracts: [Contract!]
+  vendors: [Vendor!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Additional metadata for a category."""
+type CategoryDetails {
+  id: ID!
+  category: Category!
+  description: String
+  code: String
+  owner: User
+  isActive: Boolean!
+  sortOrder: Int
+  metadata: JSON
+}
+
+# ─── Suppliers ───────────────────────────────────────────────────────────────
+
+"""A supplier organisation in Gatekeeper."""
+type Supplier {
+  id: ID!
+  name: String!
+  details: SupplierDetails
+  contacts: [SupplierContact!]
+  profile: SupplierProfile
+  contracts: [Contract!]
+  tags: [Tag!]
+  customFields: [FieldValue!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Detailed information about a supplier."""
+type SupplierDetails {
+  id: ID!
+  supplier: Supplier!
+  legalName: String
+  registrationNumber: String
+  vatNumber: String
+  industry: String
+  country: String
+  address: String
+  website: String
+  annualRevenue: Float
+  currency: String
+  employeeCount: Int
+  foundedYear: Int
+  description: String
+}
+
+"""A contact person at a supplier organisation."""
+type SupplierContact {
+  id: ID!
+  supplier: Supplier!
+  firstName: String!
+  lastName: String!
+  email: String
+  phone: String
+  jobTitle: String
+  isPrimary: Boolean
+  isActive: Boolean
+  createdAt: DateTime!
+}
+
+"""Risk and relationship profile for a supplier."""
+type SupplierProfile {
+  id: ID!
+  supplier: Supplier!
+  riskScore: Float
+  riskCategory: String
+  complianceStatus: String
+  lastReviewDate: DateTime
+  nextReviewDate: DateTime
+  certifications: [String!]
+  insuranceExpiry: DateTime
+  preferredStatus: Boolean
+  spendToDate: Float
+  currency: String
+}
+
+# ─── Vendors ─────────────────────────────────────────────────────────────────
+
+"""A vendor record in Gatekeeper (may overlap or relate to suppliers)."""
+type Vendor {
+  id: ID!
+  name: String!
+  details: VendorDetails
+  contacts: [VendorContact!]
+  contracts: [Contract!]
+  category: Category
+  tags: [Tag!]
+  customFields: [FieldValue!]
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Detailed information about a vendor."""
+type VendorDetails {
+  id: ID!
+  vendor: Vendor!
+  legalName: String
+  taxId: String
+  country: String
+  address: String
+  website: String
+  parentCompany: String
+  tier: String
+  onboardingStatus: String
+  approvedAt: DateTime
+  approvedBy: User
+}
+
+"""A contact person associated with a vendor."""
+type VendorContact {
+  id: ID!
+  vendor: Vendor!
+  firstName: String!
+  lastName: String!
+  email: String
+  phone: String
+  jobTitle: String
+  department: String
+  isPrimary: Boolean
+  createdAt: DateTime!
+}
+
+# ─── Documents ───────────────────────────────────────────────────────────────
+
+"""A document attached to a contract or vendor record."""
+type Document {
+  id: ID!
+  name: String!
+  details: DocumentDetails
+  versions: [DocumentVersion!]
+  contract: Contract
+  vendor: Vendor
+  supplier: Supplier
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User
+}
+
+"""Metadata and file details for a document."""
+type DocumentDetails {
+  id: ID!
+  document: Document!
+  fileType: String
+  fileSizeBytes: Int
+  mimeType: String
+  storageUrl: String
+  checksum: String
+  isExecuted: Boolean
+  isConfidential: Boolean
+  language: String
+  pageCount: Int
+}
+
+"""A version snapshot of a document."""
+type DocumentVersion {
+  id: ID!
+  document: Document!
+  versionNumber: Int!
+  uploadedAt: DateTime!
+  uploadedBy: User
+  changeNotes: String
+  fileUrl: String
+  fileSizeBytes: Int
+  isCurrent: Boolean!
+}
+
+"""A file attachment linked to a Gatekeeper record."""
+type Attachment {
+  id: ID!
+  name: String!
+  fileType: String
+  fileSizeBytes: Int
+  mimeType: String
+  url: String
+  contract: Contract
+  vendor: Vendor
+  uploadedAt: DateTime!
+  uploadedBy: User
+}
+
+# ─── Reviews ─────────────────────────────────────────────────────────────────
+
+"""A review task on a contract or vendor."""
+type Review {
+  id: ID!
+  title: String!
+  details: ReviewDetails
+  comments: [ReviewComment!]
+  contract: Contract
+  vendor: Vendor
+  assignedTo: User
+  status: String!
+  dueDate: DateTime
+  completedAt: DateTime
+  createdAt: DateTime!
+}
+
+"""Detailed metadata for a review."""
+type ReviewDetails {
+  id: ID!
+  review: Review!
+  description: String
+  reviewType: String
+  outcome: String
+  riskFindings: String
+  recommendations: String
+  nextReviewDate: DateTime
+  attachments: [Attachment!]
+}
+
+"""A comment left on a review."""
+type ReviewComment {
+  id: ID!
+  review: Review!
+  author: User!
+  body: String!
+  isResolved: Boolean
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# ─── Approvals ───────────────────────────────────────────────────────────────
+
+"""An approval request on a contract or document."""
+type Approval {
+  id: ID!
+  title: String!
+  details: ApprovalDetails
+  chain: ApprovalChain
+  contract: Contract
+  vendor: Vendor
+  status: String!
+  requestedAt: DateTime!
+  resolvedAt: DateTime
+  requestedBy: User
+}
+
+"""Detailed metadata for an approval."""
+type ApprovalDetails {
+  id: ID!
+  approval: Approval!
+  description: String
+  approvalType: String
+  outcome: String
+  approvedBy: User
+  rejectedBy: User
+  rejectionReason: String
+  dueDate: DateTime
+  escalatedAt: DateTime
+}
+
+"""A sequential chain of approvers for an approval workflow."""
+type ApprovalChain {
+  id: ID!
+  approval: Approval!
+  steps: [ApprovalChainStep!]!
+  currentStep: Int
+  totalSteps: Int!
+}
+
+"""A single step within an approval chain."""
+type ApprovalChainStep {
+  id: ID!
+  chain: ApprovalChain!
+  stepNumber: Int!
+  approver: User!
+  status: String!
+  actionedAt: DateTime
+  comments: String
+}
+
+# ─── Milestones ──────────────────────────────────────────────────────────────
+
+"""A key date or event milestone on a contract."""
+type Milestone {
+  id: ID!
+  name: String!
+  details: MilestoneDetails
+  contract: Contract!
+  dueDate: DateTime!
+  completedAt: DateTime
+  isComplete: Boolean!
+  createdAt: DateTime!
+}
+
+"""Detailed information about a milestone."""
+type MilestoneDetails {
+  id: ID!
+  milestone: Milestone!
+  description: String
+  milestoneType: String
+  assignedTo: User
+  reminders: [Reminder!]
+  notes: String
+  attachments: [Attachment!]
+}
+
+# ─── Reminders ───────────────────────────────────────────────────────────────
+
+"""An automated reminder linked to a contract event or milestone."""
+type Reminder {
+  id: ID!
+  name: String!
+  details: ReminderDetails
+  contract: Contract
+  milestone: Milestone
+  triggerDate: DateTime!
+  isSent: Boolean!
+  sentAt: DateTime
+  createdAt: DateTime!
+}
+
+"""Configuration details for a reminder."""
+type ReminderDetails {
+  id: ID!
+  reminder: Reminder!
+  message: String
+  recipients: [User!]
+  recipientEmails: [String!]
+  daysBefore: Int
+  channel: String
+  isRecurring: Boolean
+  recurrenceInterval: String
+}
+
+# ─── Expiration and Renewal ──────────────────────────────────────────────────
+
+"""Expiration tracking for a contract."""
+type Expiration {
+  id: ID!
+  contract: Contract!
+  expirationDate: DateTime!
+  daysUntilExpiry: Int
+  noticePeriodDays: Int
+  noticeDueDate: DateTime
+  isExpired: Boolean!
+  alertsSent: Boolean
+}
+
+"""A renewal record for a contract."""
+type Renewal {
+  id: ID!
+  contract: Contract!
+  details: RenewalDetails
+  renewalDate: DateTime!
+  status: String!
+  initiatedAt: DateTime
+  completedAt: DateTime
+  createdBy: User
+}
+
+"""Detailed information about a contract renewal."""
+type RenewalDetails {
+  id: ID!
+  renewal: Renewal!
+  renewalType: String
+  newEndDate: DateTime
+  newValue: Float
+  currency: String
+  changeNotes: String
+  approvedBy: User
+  approvedAt: DateTime
+  newContract: Contract
+}
+
+# ─── Custom Fields ───────────────────────────────────────────────────────────
+
+"""A tenant-defined custom field schema."""
+type CustomField {
+  id: ID!
+  name: String!
+  label: String!
+  fieldType: FieldType!
+  isRequired: Boolean!
+  isActive: Boolean!
+  defaultValue: String
+  options: [String!]
+  appliesTo: [String!]
+  sortOrder: Int
+  createdAt: DateTime!
+}
+
+"""The data type definition for a custom field."""
+type FieldType {
+  id: ID!
+  name: String!
+  baseType: String!
+  isMultiValue: Boolean
+  validationRegex: String
+  minLength: Int
+  maxLength: Int
+  minValue: Float
+  maxValue: Float
+}
+
+"""A value stored for a custom field on a specific record."""
+type FieldValue {
+  id: ID!
+  field: CustomField!
+  recordId: ID!
+  recordType: String!
+  stringValue: String
+  numberValue: Float
+  booleanValue: Boolean
+  dateValue: DateTime
+  selectedOptions: [String!]
+  updatedAt: DateTime!
+  updatedBy: User
+}
+
+# ─── Tags ────────────────────────────────────────────────────────────────────
+
+"""A tag used to label contracts, vendors, and other records."""
+type Tag {
+  id: ID!
+  name: String!
+  details: TagDetails
+  contracts: [Contract!]
+  vendors: [Vendor!]
+  suppliers: [Supplier!]
+  createdAt: DateTime!
+}
+
+"""Metadata for a tag."""
+type TagDetails {
+  id: ID!
+  tag: Tag!
+  description: String
+  color: String
+  isSystem: Boolean
+  createdBy: User
+  usageCount: Int
+}
+
+# ─── Users and Teams ─────────────────────────────────────────────────────────
+
+"""A Gatekeeper platform user."""
+type User {
+  id: ID!
+  email: String!
+  details: UserDetails
+  role: UserRole
+  teams: [Team!]
+  isActive: Boolean!
+  lastLoginAt: DateTime
+  createdAt: DateTime!
+}
+
+"""Profile details for a Gatekeeper user."""
+type UserDetails {
+  id: ID!
+  user: User!
+  firstName: String!
+  lastName: String!
+  displayName: String
+  jobTitle: String
+  department: String
+  phone: String
+  avatarUrl: String
+  timezone: String
+  locale: String
+}
+
+"""A role defining permissions for a Gatekeeper user."""
+type UserRole {
+  id: ID!
+  name: String!
+  description: String
+  permissions: [String!]!
+  isAdmin: Boolean
+  isReadOnly: Boolean
+  createdAt: DateTime!
+}
+
+"""A team grouping users in Gatekeeper."""
+type Team {
+  id: ID!
+  name: String!
+  details: TeamDetails
+  members: [User!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""Additional metadata for a team."""
+type TeamDetails {
+  id: ID!
+  team: Team!
+  description: String
+  owner: User
+  department: String
+  isActive: Boolean!
+  memberCount: Int
+}
+
+# ─── Webhooks ────────────────────────────────────────────────────────────────
+
+"""A webhook subscription for Gatekeeper event notifications."""
+type Webhook {
+  id: ID!
+  url: String!
+  description: String
+  events: [WebhookEvent!]!
+  isActive: Boolean!
+  secret: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: User
+  lastTriggeredAt: DateTime
+  lastStatusCode: Int
+}
+
+"""An event type that can trigger a webhook."""
+type WebhookEvent {
+  id: ID!
+  name: String!
+  description: String
+  objectType: String!
+  action: String!
+  payloadSchema: JSON
+}
+
+# ─── Search ──────────────────────────────────────────────────────────────────
+
+"""A full-text or filtered search query against Gatekeeper records."""
+type SearchQuery {
+  id: ID!
+  query: String!
+  filters: JSON
+  objectTypes: [String!]
+  dateRange: DateRange
+  sortField: String
+  sortDirection: String
+  limit: Int
+  offset: Int
+}
+
+"""Date range used in search filters."""
+type DateRange {
+  from: DateTime
+  to: DateTime
+}
+
+"""Results returned from a Gatekeeper search query."""
+type SearchResults {
+  totalCount: Int!
+  contracts: [Contract!]
+  vendors: [Vendor!]
+  suppliers: [Supplier!]
+  documents: [Document!]
+  tags: [Tag!]
+  users: [User!]
+  pageInfo: PageInfo!
+}
+
+"""Pagination metadata."""
+type PageInfo {
+  limit: Int!
+  offset: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+# ─── Reports ─────────────────────────────────────────────────────────────────
+
+"""An analytics or spend report generated in Gatekeeper."""
+type Report {
+  id: ID!
+  name: String!
+  details: ReportDetails
+  generatedAt: DateTime!
+  generatedBy: User
+  fileUrl: String
+  status: String!
+}
+
+"""Configuration and output details for a report."""
+type ReportDetails {
+  id: ID!
+  report: Report!
+  reportType: String!
+  description: String
+  parameters: JSON
+  dateRange: DateRange
+  rowCount: Int
+  fileSizeBytes: Int
+  fileFormat: String
+  expiresAt: DateTime
+}
+
+# ─── Authentication ──────────────────────────────────────────────────────────
+
+"""A tenant API key used to authenticate Gatekeeper API requests."""
+type APIKey {
+  id: ID!
+  name: String!
+  keyPrefix: String!
+  tenantId: String!
+  createdAt: DateTime!
+  lastUsedAt: DateTime
+  expiresAt: DateTime
+  isActive: Boolean!
+  createdBy: User
+  scopes: [String!]
+}
+
+"""A short-lived access token issued for API sessions."""
+type Token {
+  id: ID!
+  tokenType: String!
+  expiresAt: DateTime!
+  issuedAt: DateTime!
+  scopes: [String!]
+  tenantId: String!
+  userId: String
+}
+
+# ─── Root Types ──────────────────────────────────────────────────────────────
+
+type Query {
+  contract(id: ID!): Contract
+  contracts(status: String, categoryId: ID, supplierId: ID, vendorId: ID, limit: Int, offset: Int): [Contract!]!
+  contractDetails(contractId: ID!): ContractDetails
+  contractTypes(limit: Int, offset: Int): [ContractType!]!
+  contractStatuses: [ContractStatus!]!
+
+  supplier(id: ID!): Supplier
+  suppliers(limit: Int, offset: Int): [Supplier!]!
+  supplierProfile(supplierId: ID!): SupplierProfile
+
+  vendor(id: ID!): Vendor
+  vendors(categoryId: ID, isActive: Boolean, limit: Int, offset: Int): [Vendor!]!
+
+  document(id: ID!): Document
+  documents(contractId: ID, vendorId: ID, limit: Int, offset: Int): [Document!]!
+  documentVersions(documentId: ID!): [DocumentVersion!]!
+
+  category(id: ID!): Category
+  categories(parentId: ID, limit: Int, offset: Int): [Category!]!
+
+  review(id: ID!): Review
+  reviews(contractId: ID, vendorId: ID, status: String, limit: Int, offset: Int): [Review!]!
+
+  approval(id: ID!): Approval
+  approvals(contractId: ID, status: String, limit: Int, offset: Int): [Approval!]!
+
+  milestone(id: ID!): Milestone
+  milestones(contractId: ID, isComplete: Boolean, limit: Int, offset: Int): [Milestone!]!
+
+  reminder(id: ID!): Reminder
+  reminders(contractId: ID, isSent: Boolean, limit: Int, offset: Int): [Reminder!]!
+
+  expirations(daysUntil: Int, limit: Int, offset: Int): [Expiration!]!
+  renewals(contractId: ID, status: String, limit: Int, offset: Int): [Renewal!]!
+
+  customFields(appliesTo: String): [CustomField!]!
+  fieldValues(recordId: ID!, recordType: String!): [FieldValue!]!
+
+  tag(id: ID!): Tag
+  tags(limit: Int, offset: Int): [Tag!]!
+
+  user(id: ID!): User
+  users(teamId: ID, roleId: ID, isActive: Boolean, limit: Int, offset: Int): [User!]!
+  userRoles: [UserRole!]!
+
+  team(id: ID!): Team
+  teams(limit: Int, offset: Int): [Team!]!
+
+  webhook(id: ID!): Webhook
+  webhooks(isActive: Boolean, limit: Int, offset: Int): [Webhook!]!
+  webhookEvents: [WebhookEvent!]!
+
+  search(query: SearchQuery!): SearchResults!
+
+  report(id: ID!): Report
+  reports(reportType: String, limit: Int, offset: Int): [Report!]!
+
+  apiKeys(limit: Int, offset: Int): [APIKey!]!
+}
+
+type Mutation {
+  createContract(input: JSON!): Contract!
+  updateContract(id: ID!, input: JSON!): Contract!
+  deleteContract(id: ID!): Boolean!
+
+  createSupplier(input: JSON!): Supplier!
+  updateSupplier(id: ID!, input: JSON!): Supplier!
+
+  createVendor(input: JSON!): Vendor!
+  updateVendor(id: ID!, input: JSON!): Vendor!
+
+  uploadDocument(contractId: ID, vendorId: ID, input: JSON!): Document!
+  addAttachment(recordId: ID!, recordType: String!, input: JSON!): Attachment!
+
+  createReview(input: JSON!): Review!
+  updateReview(id: ID!, input: JSON!): Review!
+  addReviewComment(reviewId: ID!, body: String!): ReviewComment!
+
+  createApproval(input: JSON!): Approval!
+  resolveApproval(id: ID!, outcome: String!, comments: String): Approval!
+
+  createMilestone(contractId: ID!, input: JSON!): Milestone!
+  completeMilestone(id: ID!): Milestone!
+
+  createReminder(input: JSON!): Reminder!
+  deleteReminder(id: ID!): Boolean!
+
+  createTag(name: String!, color: String): Tag!
+  addTagToContract(tagId: ID!, contractId: ID!): Contract!
+  removeTagFromContract(tagId: ID!, contractId: ID!): Contract!
+
+  createCustomField(input: JSON!): CustomField!
+  setFieldValue(fieldId: ID!, recordId: ID!, recordType: String!, value: JSON!): FieldValue!
+
+  createWebhook(url: String!, events: [String!]!, secret: String): Webhook!
+  updateWebhook(id: ID!, input: JSON!): Webhook!
+  deleteWebhook(id: ID!): Boolean!
+
+  generateReport(reportType: String!, parameters: JSON): Report!
+
+  createAPIKey(name: String!, scopes: [String!]): APIKey!
+  revokeAPIKey(id: ID!): Boolean!
+}
