@@ -45,6 +45,8 @@ apis:
   - url: graphql/gatekeeper-graphql.md
     type: GraphQL
 common:
+- type: DomainSecurity
+  url: security/gatekeeper-domain-security.yml
 - type: LinkedIn
   url: https://www.linkedin.com/company/gatekeeper-vclm
 - type: Website
@@ -59,6 +61,8 @@ common:
   url: https://knowledge.gatekeeperhq.com
 - type: Academy
   url: https://academy.gatekeeperhq.com
+- url: https://www.gatekeeperhq.com/blog/rss.xml
+  type: Blog
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
