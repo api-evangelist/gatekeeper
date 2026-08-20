@@ -47,6 +47,11 @@ apis:
   - Contract Management
   - Vendor Management
   - Procurement
+  - Workflow-Automation
+  tags_raw:
+  - Contract Management
+  - Vendor Management
+  - Procurement
   - Workflow Automation
   properties:
   - type: Documentation
