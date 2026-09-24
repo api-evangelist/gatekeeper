@@ -58,19 +58,18 @@ apis:
   - Contract Management
   - Vendor Management
   - Procurement
-  - Workflow-Automation
+  - Workflow Automation
   tags_raw:
   - Contract Management
   - Vendor Management
   - Procurement
   - Workflow Automation
+  - Workflow-Automation
   properties:
   - type: Documentation
     url: https://knowledge.gatekeeperhq.com/en/docs/configuring-api
   - type: Knowledge Base
     url: https://knowledge.gatekeeperhq.com
-  - url: graphql/gatekeeper-graphql.md
-    type: GraphQL
 common:
 - type: DomainSecurity
   url: security/gatekeeper-domain-security.yml
